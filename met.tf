@@ -4,20 +4,44 @@ provider "aws" {
   region     = "${var.region}"
 }
 
-resource "aws_security_group" "met-default" {
+resource "aws_vpc" "met-vpc" {
+  cidr_block           = "${var.vpc_cidr_block}"
+  enable_dns_hostnames = "true"
+
+  tags {
+    Name              = "MET-vpc"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
+  }
+}
+
+resource "aws_subnet" "met-subnet" {
+  vpc_id            = "${aws_vpc.met-vpc.id}"
+  cidr_block        = "${var.vpc_cidr_block}"
+  availability_zone = "${var.availability_zone}"
+
+  tags {
+    Name              = "MET-subnet"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
+  }
+}
+
+resource "aws_security_group" "met-default-security-group" {
   name        = "MET_default"
   description = "Allow inbound ssh and all outbound traffic"
-  vpc_id      = "vpc-0076fc811da456d76"
-
-  #vpc_id      = "${aws_vpc.main.id}"
+  vpc_id      = "${aws_vpc.met-vpc.id}"
 
   # Allow inbound ssh from everywhere
   ingress {
-    from_port   = 0
+    from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   # Allow all outbound traffic
   egress {
     from_port   = 0
@@ -25,17 +49,19 @@ resource "aws_security_group" "met-default" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   tags {
-    Name = "MET_default"
+    Name              = "MET default security group"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
   }
 }
 
-resource "aws_security_group" "met-master" {
+resource "aws_security_group" "met-master-security-group" {
   name        = "MET_master"
   description = "Allow inbound traffic to Puppet master required ports"
-  vpc_id      = "vpc-0076fc811da456d76"
-
-  #vpc_id      = "${aws_vpc.main.id}"
+  vpc_id      = "${aws_vpc.met-vpc.id}"
 
   # Allow inbound traffic to the puppet server from everywhere
   ingress {
@@ -44,6 +70,7 @@ resource "aws_security_group" "met-master" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   # Allow inbound https traffic from everywhere
   ingress {
     from_port   = 0
@@ -51,6 +78,7 @@ resource "aws_security_group" "met-master" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   # Allow inbound orchestrator traffic from everywhere
   ingress {
     from_port   = 0
@@ -69,120 +97,125 @@ resource "aws_security_group" "met-master" {
   # }
 
   tags {
-    Name = "MET_master"
+    Name              = "MET master security group"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
   }
 }
 
-resource "aws_instance" "master" {
-  ami                         = "ami-9887c6e7"
-  instance_type               = "m5.large"
-  subnet_id                   = "subnet-0a93e76029daf16bf"
+resource "aws_instance" "met-pe-master" {
+  ami                         = "${var.centos_ami_name}"
+  instance_type               = "${var.master_instance_type}"
+  subnet_id                   = "${aws_subnet.met-subnet.id}"
   key_name                    = "${var.key_name}"
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
-    "${aws_security_group.met-default.id}",
-    "${aws_security_group.met-master.id}",
+    "${aws_security_group.met-default-security-group.id}",
+    "${aws_security_group.met-master-security-group.id}",
   ]
 
-  # vpc_security_group_ids = [
-  #   "sg-0c51c7afc3e5d89c0",
-  #   "sg-0b20d19871015dca1",
-  # ]
-
-  tags = {
-    Name       = "MET master"
-    Consultant = "Joe Consultant"
-    Partner    = "PartnerCorp"
+  tags {
+    Name              = "MET PE master"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
   }
 }
 
-resource "aws_instance" "gitlab" {
-  ami                         = "ami-9887c6e7"
-  instance_type               = "t2.micro"
-  subnet_id                   = "subnet-0a93e76029daf16bf"
+resource "aws_instance" "met-gitlab" {
+  ami                         = "${var.centos_ami_name}"
+  instance_type               = "${var.gitlab_instance_type}"
+  subnet_id                   = "${aws_subnet.met-subnet.id}"
+  key_name                    = "${var.key_name}"
+  availability_zone           = "${var.availability_zone}"
+  associate_public_ip_address = true
+
+  vpc_security_group_ids = [
+    "${aws_security_group.met-default-security-group.id}",
+  ]
+
+  tags {
+    Name              = "MET gitlab"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
+  }
+}
+
+resource "aws_instance" "met-centos-agent-1" {
+  ami                         = "${var.centos_ami_name}"
+  instance_type               = "${var.linux_agent_instance_type}"
+  subnet_id                   = "${aws_subnet.met-subnet.id}"
   key_name                    = "${var.key_name}"
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
-    "${aws_security_group.met-default.id}",
+    "${aws_security_group.met-default-security-group.id}",
   ]
 
-  tags = {
-    Name       = "MET gitlab"
-    Consultant = "Joe Consultant"
-    Partner    = "PartnerCorp"
-  }
-}
-
-resource "aws_instance" "centos-agent-1" {
-  ami                         = "ami-9887c6e7"
-  instance_type               = "t2.micro"
-  subnet_id                   = "subnet-0a93e76029daf16bf"
-  key_name                    = "${var.key_name}"
-  associate_public_ip_address = true
-
-  vpc_security_group_ids = [
-    "${aws_security_group.met-default.id}",
-  ]
-
-  tags = {
-    Name       = "MET centos agent 1"
-    Consultant = "Joe Consultant"
-    Partner    = "PartnerCorp"
+  tags {
+    Name              = "MET centos agent 1"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
   }
 }
 
 resource "aws_instance" "centos-agent-2" {
-  ami                         = "ami-9887c6e7"
-  instance_type               = "t2.micro"
-  subnet_id                   = "subnet-0a93e76029daf16bf"
+  ami                         = "${var.centos_ami_name}"
+  instance_type               = "${var.linux_agent_instance_type}"
+  subnet_id                   = "${aws_subnet.met-subnet.id}"
   key_name                    = "${var.key_name}"
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
-    "${aws_security_group.met-default.id}",
+    "${aws_security_group.met-default-security-group.id}",
   ]
 
-  tags = {
-    Name       = "MET centos agent 2"
-    Consultant = "Joe Consultant"
-    Partner    = "PartnerCorp"
+  tags {
+    Name              = "MET centos agent 2"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
   }
 }
 
 resource "aws_instance" "ubuntu-agent-1" {
-  ami                         = "ami-6061141f"
-  instance_type               = "t2.micro"
-  subnet_id                   = "subnet-0a93e76029daf16bf"
+  ami                         = "${var.ubuntu_ami_name}"
+  instance_type               = "${var.linux_agent_instance_type}"
+  subnet_id                   = "${aws_subnet.met-subnet.id}"
   key_name                    = "${var.key_name}"
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
-    "${aws_security_group.met-default.id}",
+    "${aws_security_group.met-default-security-group.id}",
   ]
 
-  tags = {
-    Name       = "MET ubuntu agent 1"
-    Consultant = "Joe Consultant"
-    Partner    = "PartnerCorp"
+  tags {
+    Name              = "MET ubuntu agent 1"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
   }
 }
 
 resource "aws_instance" "ubuntu-agent-2" {
-  ami                         = "ami-6061141f"
-  instance_type               = "t2.micro"
-  subnet_id                   = "subnet-0a93e76029daf16bf"
+  ami                         = "${var.ubuntu_ami_name}"
+  instance_type               = "${var.linux_agent_instance_type}"
+  subnet_id                   = "${aws_subnet.met-subnet.id}"
   key_name                    = "${var.key_name}"
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
-    "${aws_security_group.met-default.id}",
+    "${aws_security_group.met-default-security-group.id}",
   ]
 
-  tags = {
-    Name       = "MET ubuntu agent 2"
-    Consultant = "Joe Consultant"
-    Partner    = "PartnerCorp"
+  tags {
+    Name              = "MET ubuntu agent 2"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
   }
 }
