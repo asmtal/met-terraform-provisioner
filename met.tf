@@ -116,6 +116,10 @@ resource "aws_instance" "met-pe-master" {
     "${aws_security_group.met-master-security-group.id}",
   ]
 
+  root_block_device = {
+    delete_on_termination = true
+  }
+
   tags {
     Name              = "MET PE master"
     MET_instance_name = "${var.met_instance_name}"
@@ -136,6 +140,10 @@ resource "aws_instance" "met-gitlab" {
     "${aws_security_group.met-default-security-group.id}",
   ]
 
+  root_block_device = {
+    delete_on_termination = true
+  }
+
   tags {
     Name              = "MET gitlab"
     MET_instance_name = "${var.met_instance_name}"
@@ -144,76 +152,48 @@ resource "aws_instance" "met-gitlab" {
   }
 }
 
-resource "aws_instance" "met-centos-agent-1" {
+resource "aws_instance" "met-centos-agent" {
   ami                         = "${var.centos_ami_name}"
   instance_type               = "${var.linux_agent_instance_type}"
   subnet_id                   = "${aws_subnet.met-subnet.id}"
   key_name                    = "${var.key_name}"
   associate_public_ip_address = true
+  count                       = 2
 
   vpc_security_group_ids = [
     "${aws_security_group.met-default-security-group.id}",
   ]
 
+  root_block_device = {
+    delete_on_termination = true
+  }
+
   tags {
-    Name              = "MET centos agent 1"
+    Name              = "MET centos agent ${count.index}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
   }
 }
 
-resource "aws_instance" "centos-agent-2" {
-  ami                         = "${var.centos_ami_name}"
-  instance_type               = "${var.linux_agent_instance_type}"
-  subnet_id                   = "${aws_subnet.met-subnet.id}"
-  key_name                    = "${var.key_name}"
-  associate_public_ip_address = true
-
-  vpc_security_group_ids = [
-    "${aws_security_group.met-default-security-group.id}",
-  ]
-
-  tags {
-    Name              = "MET centos agent 2"
-    MET_instance_name = "${var.met_instance_name}"
-    MET_user_name     = "${var.met_user_name}"
-    MET_company_name  = "${var.met_company_name}"
-  }
-}
-
-resource "aws_instance" "ubuntu-agent-1" {
+resource "aws_instance" "ubuntu-agent" {
   ami                         = "${var.ubuntu_ami_name}"
   instance_type               = "${var.linux_agent_instance_type}"
   subnet_id                   = "${aws_subnet.met-subnet.id}"
   key_name                    = "${var.key_name}"
   associate_public_ip_address = true
+  count                       = 2
 
   vpc_security_group_ids = [
     "${aws_security_group.met-default-security-group.id}",
   ]
 
-  tags {
-    Name              = "MET ubuntu agent 1"
-    MET_instance_name = "${var.met_instance_name}"
-    MET_user_name     = "${var.met_user_name}"
-    MET_company_name  = "${var.met_company_name}"
+  root_block_device = {
+    delete_on_termination = true
   }
-}
-
-resource "aws_instance" "ubuntu-agent-2" {
-  ami                         = "${var.ubuntu_ami_name}"
-  instance_type               = "${var.linux_agent_instance_type}"
-  subnet_id                   = "${aws_subnet.met-subnet.id}"
-  key_name                    = "${var.key_name}"
-  associate_public_ip_address = true
-
-  vpc_security_group_ids = [
-    "${aws_security_group.met-default-security-group.id}",
-  ]
 
   tags {
-    Name              = "MET ubuntu agent 2"
+    Name              = "MET ubuntu agent ${count.index}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
