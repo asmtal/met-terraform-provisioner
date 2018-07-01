@@ -1,18 +1,17 @@
 # Variables below have no defaults.
 # They must be specified in a tfvars file or otherwise defined.
-
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-variable "aws_key_name" {}
-variable "centos_ami_name" {}
-variable "ubuntu_ami_name" {}
-
-#variable "windows_ami_name" {}
 variable "met_instance_name" {}
 
 variable "met_user_name" {}
 variable "met_company_name" {}
 
+variable "aws_key_name" {}
+
+variable "centos_ami_name" {}
+
+variable "ubuntu_ami_name" {}
+
+#variable "windows_ami_name" {}
 # Variables below have default values.
 # If no other value is specified elsewhere, they will
 # be set to the defaults shown below.
