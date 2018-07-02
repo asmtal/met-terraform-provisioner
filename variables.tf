@@ -1,45 +1,30 @@
 # Variables below have no defaults.
 # They must be specified in a tfvars file or otherwise defined.
 
+# global variables - these apply to all providers
+variable "met_instance_name" {}
+
+variable "met_user_name" {}
+variable "met_company_name" {}
+
+# aws provider variables 
 variable "aws_access_key" {}
+
 variable "aws_secret_key" {}
 variable "aws_key_name" {}
 variable "centos_ami_name" {}
 variable "ubuntu_ami_name" {}
 
 #variable "windows_ami_name" {}
-variable "met_instance_name" {}
-
-variable "met_user_name" {}
-variable "met_company_name" {}
-
-# Variables below have default values.
-# If no other value is specified elsewhere, they will
-# be set to the defaults shown below.
 variable "aws_region" {
   default = "us-east-1"
 }
 
-variable "availability_zone" {
-  default = "us-east-1a"
-}
+# gce provider variables
+variable "gce_credentials_file_name" {}
 
-variable "vpc_cidr_block" {
-  default = "10.0.0.0/32"
-}
+variable "gce_project" {}
+variable "gce_region" {}
 
-variable "master_instance_type" {
-  default = "m5.large"
-}
+# MS Azure provider variables
 
-variable "gitlab_instance_type" {
-  default = "t2.medium"
-}
-
-variable "linux_agent_instance_type" {
-  default = "t2.small"
-}
-
-variable "windows_agent_instance_type" {
-  default = "m5.large"
-}

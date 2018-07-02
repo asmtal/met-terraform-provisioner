@@ -3,7 +3,7 @@ resource "aws_vpc" "met-vpc" {
   enable_dns_hostnames = true
 
   tags {
-    Name              = "MET-vpc"
+    Name              = "met-vpc-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
@@ -16,7 +16,7 @@ resource "aws_subnet" "met-subnet" {
   availability_zone = "${var.availability_zone}"
 
   tags {
-    Name              = "MET-subnet"
+    Name              = "met-subnet-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
@@ -45,13 +45,14 @@ resource "aws_security_group" "met-default-security-group" {
   }
 
   tags {
-    Name              = "MET default security group"
+    Name              = "met-default-security-group-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
   }
 }
 
+#create specific rule resources
 resource "aws_security_group" "met-master-security-group" {
   name        = "MET_master"
   description = "Allow inbound traffic to Puppet master required ports"
@@ -91,7 +92,7 @@ resource "aws_security_group" "met-master-security-group" {
   # }
 
   tags {
-    Name              = "MET master security group"
+    Name              = "met-master-security-group-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
@@ -115,7 +116,7 @@ resource "aws_instance" "met-pe-master" {
   }
 
   tags {
-    Name              = "MET PE master"
+    Name              = "met-pe-master-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
@@ -139,7 +140,7 @@ resource "aws_instance" "met-gitlab" {
   }
 
   tags {
-    Name              = "MET gitlab"
+    Name              = "met-gitlab-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
@@ -163,7 +164,7 @@ resource "aws_instance" "met-centos-agent" {
   }
 
   tags {
-    Name              = "MET centos agent ${count.index}"
+    Name              = "met-centos-agent-${var.met_instance_name}-${count.index}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
@@ -187,7 +188,7 @@ resource "aws_instance" "ubuntu-agent" {
   }
 
   tags {
-    Name              = "MET ubuntu agent ${count.index}"
+    Name              = "met-ubuntu-agent-${var.met_instance_name}-${count.index}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
