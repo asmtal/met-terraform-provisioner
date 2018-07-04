@@ -1,3 +1,18 @@
+# global variables for the MET
+# These aer shared across all providers
+# and are generally used for resource IDs, names, and tags
+met_instance_name = "gsarjeant"
+
+met_user_name = "Greg Sarjeant"
+
+met_company_name = "Puppet"
+
+# Supported providers
+#   You can use this module to provision a MET environment in the following public clouds:
+#
+# Amazon AWS
+# Google Compute Engine
+# Microsoft Azure
 provider "aws" {
   access_key = "${var.aws_access_key}"
   secret_key = "${var.aws_secret_key}"
@@ -20,28 +35,4 @@ provider "azure" {
   client_id     = "${var.azure_client_id}"
   client_secret = "${var.azure_client_secret}"
   tenant_id     = "${var.azure_client_id}"
-}
-
-# module "aws1" {
-#   source            = "./aws"
-#   aws_key_name      = "${var.aws_key_name}"
-#   centos_ami_name   = "${var.centos_ami_name}"
-#   ubuntu_ami_name   = "${var.ubuntu_ami_name}"
-#   met_instance_name = "${var.met_instance_name}"
-#   met_user_name     = "${var.met_user_name}"
-#   met_company_name  = "${var.met_company_name}"
-# }
-
-# module "gce1" {
-#   source            = "./gce"
-#   met_instance_name = "${var.met_instance_name}"
-#   met_user_name     = "${var.met_user_name}"
-#   met_company_name  = "${var.met_company_name}"
-# }
-
-module "azure1" {
-  source            = "./azure"
-  met_instance_name = "${var.met_instance_name}"
-  met_user_name     = "${var.met_user_name}"
-  met_company_name  = "${var.met_company_name}"
 }

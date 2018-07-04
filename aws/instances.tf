@@ -103,7 +103,7 @@ resource "aws_instance" "met-pe-master" {
   ami                         = "${var.centos_ami_name}"
   instance_type               = "${var.master_instance_type}"
   subnet_id                   = "${aws_subnet.met-subnet.id}"
-  key_name                    = "${var.aws_key_name}"
+  key_name                    = "${var.key_name}"
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
@@ -127,7 +127,7 @@ resource "aws_instance" "met-gitlab" {
   ami                         = "${var.centos_ami_name}"
   instance_type               = "${var.gitlab_instance_type}"
   subnet_id                   = "${aws_subnet.met-subnet.id}"
-  key_name                    = "${var.aws_key_name}"
+  key_name                    = "${var.key_name}"
   availability_zone           = "${var.availability_zone}"
   associate_public_ip_address = true
 
@@ -151,7 +151,7 @@ resource "aws_instance" "met-centos-agent" {
   ami                         = "${var.centos_ami_name}"
   instance_type               = "${var.linux_agent_instance_type}"
   subnet_id                   = "${aws_subnet.met-subnet.id}"
-  key_name                    = "${var.aws_key_name}"
+  key_name                    = "${var.key_name}"
   associate_public_ip_address = true
   count                       = 2
 
@@ -175,7 +175,7 @@ resource "aws_instance" "ubuntu-agent" {
   ami                         = "${var.ubuntu_ami_name}"
   instance_type               = "${var.linux_agent_instance_type}"
   subnet_id                   = "${aws_subnet.met-subnet.id}"
-  key_name                    = "${var.aws_key_name}"
+  key_name                    = "${var.key_name}"
   associate_public_ip_address = true
   count                       = 2
 

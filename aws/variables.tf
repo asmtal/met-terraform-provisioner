@@ -5,7 +5,7 @@ variable "met_instance_name" {}
 variable "met_user_name" {}
 variable "met_company_name" {}
 
-variable "aws_key_name" {}
+variable "key_name" {}
 
 variable "centos_ami_name" {}
 
@@ -15,7 +15,7 @@ variable "ubuntu_ami_name" {}
 # Variables below have default values.
 # If no other value is specified elsewhere, they will
 # be set to the defaults shown below.
-variable "aws_region" {
+variable "region" {
   default = "us-east-1"
 }
 
