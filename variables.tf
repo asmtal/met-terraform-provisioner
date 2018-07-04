@@ -12,8 +12,8 @@ variable "aws_access_key" {}
 
 variable "aws_secret_key" {}
 variable "aws_key_name" {}
-variable "centos_ami_name" {}
-variable "ubuntu_ami_name" {}
+variable "aws_centos_ami_name" {}
+variable "aws_ubuntu_ami_name" {}
 
 #variable "windows_ami_name" {}
 variable "aws_region" {
