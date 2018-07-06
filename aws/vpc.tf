@@ -23,30 +23,83 @@ resource "aws_subnet" "met-subnet" {
   }
 }
 
-resource "aws_security_group" "met-default-security-group" {
-  name        = "MET_default"
+# resource "aws_security_group" "met-sg-outbound-all" {
+#   name        = "MET_sg_outbound_all"
+#   description = "Allow all outbound traffic"
+#   vpc_id      = "${aws_vpc.met-vpc.id}"
+
+#   tags {
+#     Name              = "met-default-security-group-${var.met_instance_name}"
+#     MET_instance_name = "${var.met_instance_name}"
+#     MET_user_name     = "${var.met_user_name}"
+#     MET_company_name  = "${var.met_company_name}"
+#   }
+# }
+
+resource "aws_security_group" "met-sg-linux-default" {
+  name        = "MET_sg_linux_default"
   description = "Allow inbound ssh and all outbound traffic"
   vpc_id      = "${aws_vpc.met-vpc.id}"
 
   tags {
-    Name              = "met-default-security-group-${var.met_instance_name}"
+    Name              = "met-sg-linux-default-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
   }
 }
 
-resource "aws_security_group" "met-master-security-group" {
-  name        = "MET_master"
-  description = "Allow inbound traffic to Puppet master required ports"
+resource "aws_security_group" "met-sg-windows-default" {
+  name        = "MET_sg_windows_default"
+  description = "Allow inbound rdp andall outbound traffic"
   vpc_id      = "${aws_vpc.met-vpc.id}"
 
   tags {
-    Name              = "met-master-security-group-${var.met_instance_name}"
+    Name              = "met-sg-windows-default-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
   }
+}
+
+resource "aws_security_group" "met-sg-inbound-pe-master" {
+  name        = "MET_master"
+  description = "Allow inbound traffic to Puppet Enterprise master required ports"
+  vpc_id      = "${aws_vpc.met-vpc.id}"
+
+  tags {
+    Name              = "met-sg-inbound-pe-master-${var.met_instance_name}"
+    MET_instance_name = "${var.met_instance_name}"
+    MET_user_name     = "${var.met_user_name}"
+    MET_company_name  = "${var.met_company_name}"
+  }
+}
+
+resource "aws_security_group_rule" "met-allow-outbound-all-windows" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.met-sg-windows-default.id}"
+}
+
+resource "aws_security_group_rule" "met-allow-inbound-rdp" {
+  type              = "ingress"
+  from_port         = 3389
+  to_port           = 3389
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.met-sg-windows-default.id}"
+}
+
+resource "aws_security_group_rule" "met-allow-outbound-all-linux" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.met-sg-linux-default.id}"
 }
 
 resource "aws_security_group_rule" "met-allow-inbound-ssh" {
@@ -55,16 +108,7 @@ resource "aws_security_group_rule" "met-allow-inbound-ssh" {
   to_port           = 22
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.met-default-security-group.id}"
-}
-
-resource "aws_security_group_rule" "met-allow-outbound-all" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.met-default-security-group.id}"
+  security_group_id = "${aws_security_group.met-sg-linux-default.id}"
 }
 
 resource "aws_security_group_rule" "met-allow-inbound-https" {
@@ -73,7 +117,7 @@ resource "aws_security_group_rule" "met-allow-inbound-https" {
   to_port           = 443
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.met-master-security-group.id}"
+  security_group_id = "${aws_security_group.met-sg-inbound-pe-master.id}"
 }
 
 resource "aws_security_group_rule" "met-allow-inbound-puppet-server" {
@@ -82,7 +126,7 @@ resource "aws_security_group_rule" "met-allow-inbound-puppet-server" {
   to_port           = 8140
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.met-master-security-group.id}"
+  security_group_id = "${aws_security_group.met-sg-inbound-pe-master.id}"
 }
 
 resource "aws_security_group_rule" "met-allow-inbound-puppet-orchestrator" {
@@ -91,5 +135,5 @@ resource "aws_security_group_rule" "met-allow-inbound-puppet-orchestrator" {
   to_port           = 8142
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.met-master-security-group.id}"
+  security_group_id = "${aws_security_group.met-sg-inbound-pe-master.id}"
 }
