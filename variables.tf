@@ -11,14 +11,14 @@ variable "met_company_name" {}
 variable "aws_access_key" {}
 
 variable "aws_secret_key" {}
-variable "aws_key_name" {}
-variable "centos_ami_name" {}
-variable "ubuntu_ami_name" {}
+variable "aws_region" {}
+variable "aws_availability_zone" {}
 
-#variable "windows_ami_name" {}
-variable "aws_region" {
-  default = "us-east-1"
-}
+variable "aws_key_name" {}
+variable "aws_centos_ami_name" {}
+variable "aws_ubuntu_ami_name" {}
+
+variable "aws_windows_ami_name" {}
 
 # gce provider variables
 variable "gce_credentials_file_name" {}

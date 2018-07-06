@@ -5,17 +5,20 @@ variable "met_instance_name" {}
 variable "met_user_name" {}
 variable "met_company_name" {}
 
-variable "aws_key_name" {}
+variable "access_key" {}
+variable "secret_key" {}
+variable "key_name" {}
 
 variable "centos_ami_name" {}
 
 variable "ubuntu_ami_name" {}
 
-#variable "windows_ami_name" {}
+variable "windows_ami_name" {}
+
 # Variables below have default values.
 # If no other value is specified elsewhere, they will
 # be set to the defaults shown below.
-variable "aws_region" {
+variable "region" {
   default = "us-east-1"
 }
 
@@ -31,6 +34,10 @@ variable "master_instance_type" {
   default = "m5.large"
 }
 
+variable "compile_master_instance_type" {
+  default = "t2.medium"
+}
+
 variable "gitlab_instance_type" {
   default = "t2.medium"
 }
@@ -41,4 +48,20 @@ variable "linux_agent_instance_type" {
 
 variable "windows_agent_instance_type" {
   default = "m5.large"
+}
+
+variable "compile_master_count" {
+  default = "1"
+}
+
+variable "centos_agent_count" {
+  default = "1"
+}
+
+variable "ubuntu_agent_count" {
+  default = "1"
+}
+
+variable "windows_agent_count" {
+  default = "1"
 }
