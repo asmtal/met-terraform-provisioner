@@ -12,29 +12,43 @@ resource "aws_vpc" "met-vpc" {
 
 resource "aws_subnet" "met-subnet" {
   vpc_id            = "${aws_vpc.met-vpc.id}"
-  cidr_block        = "${var.vpc_cidr_block}"
+  cidr_block        = "${var.public_subnet_cidr_block}"
   availability_zone = "${var.availability_zone}"
 
   tags {
-    Name              = "met-subnet-${var.met_instance_name}"
+    Name              = "met-public-subnet-${var.met_instance_name}"
     MET_instance_name = "${var.met_instance_name}"
     MET_user_name     = "${var.met_user_name}"
     MET_company_name  = "${var.met_company_name}"
   }
 }
 
-# resource "aws_security_group" "met-sg-outbound-all" {
-#   name        = "MET_sg_outbound_all"
-#   description = "Allow all outbound traffic"
-#   vpc_id      = "${aws_vpc.met-vpc.id}"
+resource "aws_internet_gateway" "met-igw" {
+  vpc_id = "${aws_vpc.met-vpc.id}"
 
-#   tags {
-#     Name              = "met-default-security-group-${var.met_instance_name}"
-#     MET_instance_name = "${var.met_instance_name}"
-#     MET_user_name     = "${var.met_user_name}"
-#     MET_company_name  = "${var.met_company_name}"
-#   }
-# }
+  tags {
+    Name = "met-internet-gateway-${var.met_instance_name}"
+  }
+}
+
+resource "aws_route_table" "met-public-rt" {
+  vpc_id = "${aws_vpc.met-vpc.id}"
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.met-igw.id}"
+  }
+
+  tags {
+    Name = "met-public-routing-table-${var.met_instance_name}"
+  }
+}
+
+# Assign the route table to the public Subnet
+resource "aws_route_table_association" "met-public-rta" {
+  subnet_id      = "${aws_subnet.met-subnet.id}"
+  route_table_id = "${aws_route_table.met-public-rt.id}"
+}
 
 resource "aws_security_group" "met-sg-linux-default" {
   name        = "MET_sg_linux_default"
